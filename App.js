@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
   SafeAreaView,
+  ScrollView,
   View,
   Text,
   TextInput,
@@ -14,7 +15,49 @@ import {
 
 import axios from "axios";
 
-const API_KEY = "7b62fa5d"; // Reemplaza con tu propia API key de OMDb
+const API_KEY = process.env.EXPO_PUBLIC_OMDB_KEY; // Reemplaza con tu propia API key de OMDb
+const COLOR_PRIMARY   = "#007BFF";
+const COLOR_SECONDARY = "#aaa";
+const BORDER_RADIUS   = 8;
+
+
+const Rating = ({ source, value }) => {
+  return (
+    <View style={styles.rating}>
+      <Text style={styles.ratingValue}>{value}</Text>
+      <Text style={styles.ratingSource}>{source}</Text>
+    </View>
+  );
+}
+const RatingList = ({ ratings }) => {
+  let i = -1;
+  return (
+    <View style={styles.ratingList}>
+      {
+        ratings.map(() => {
+          i++;
+          return <Rating key={"rating" + i} source={ratings[i].Source} value={ratings[i].Value} />;
+        })
+      }
+    </View>
+  );
+}
+const BasicDetails = ({ actors, director, genre }) => {
+  return (
+    <View style={styles.input}>
+      <Text style={styles.movieText}>
+        <Text style={styles.detailTitle}>Actores:</Text> {actors}
+      </Text>
+      <Text style={styles.movieText}>
+        <Text style={styles.detailTitle}>Director:</Text> {director}
+      </Text>
+      <Text style={styles.movieText}>
+        <Text style={styles.detailTitle}>Género:</Text> {genre}
+      </Text>
+    </View>
+  )
+}
+
 
 const App = () => {
   // tt0133093 / tt0317219
@@ -75,6 +118,7 @@ const App = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar/>
+      <ScrollView>
       <Text style={styles.title}>Buscar Película por IMDb ID</Text>
 
       <TextInput
@@ -99,8 +143,11 @@ const App = () => {
             resizeMode="contain"
           />
           <Text style={styles.movieTitle}>{movieData.Title}</Text>
+          <RatingList ratings={movieData.Ratings} />
+          <BasicDetails actors={movieData.Actors} director={movieData.Director} genre={movieData.Genre} />
         </View>
       )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -120,16 +167,16 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#aaa",
-    borderRadius: 8,
+    borderColor: COLOR_SECONDARY,
+    borderRadius: BORDER_RADIUS,
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#007BFF",
+    backgroundColor: COLOR_PRIMARY,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: BORDER_RADIUS,
     alignItems: "center",
     marginBottom: 16,
     width: "100%",
@@ -146,13 +193,36 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 400,
     marginBottom: 12,
-    borderRadius: 8,
+    overflow: "hidden",
+    borderRadius: BORDER_RADIUS,
   },
   movieTitle: {
     fontSize: 24,
     fontWeight: "600",
     textAlign: "center",
   },
+  detailTitle: {
+    fontWeight: "bold"
+  },
+
+  ratingList: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignContent: "center",
+    marginBottom: 12,
+    width: "100%"
+  },
+  rating: {
+    width: "33.33%"
+  },
+  ratingValue: {
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 18
+  },
+  ratingSource: {
+    textAlign: "center"
+  }
 });
 
 export default App;
